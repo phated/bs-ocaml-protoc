@@ -168,10 +168,15 @@ let generate_bs ocaml_types cmdline =
   generate_mutable_records file_suffix ocaml_types ml_sc;
   F.empty_line ml_sc;
 
+  F.line ml_sc "module Decode = struct";
   generate_for_all_types ocaml_types ml_sc 
     Pb_codegen_decode_bs.gen_struct None; 
+  F.line ml_sc "end";
+  F.empty_line ml_sc;
+  F.line ml_sc "module Encode = struct";
   generate_for_all_types ocaml_types ml_sc 
     Pb_codegen_encode_bs.gen_struct None; 
+  F.line ml_sc "end";
   
   (* .mli file *)
   let mli_sc = F.empty_scope () in 
@@ -179,12 +184,17 @@ let generate_bs ocaml_types cmdline =
         "(** %s BuckleScript Encoding *)" 
         (Filename.basename cmdline.Cmdline.proto_file_name); 
   F.empty_line mli_sc; 
+  F.line mli_sc "module Encode : sig";
   generate_for_all_types ocaml_types mli_sc 
     Pb_codegen_encode_bs.gen_sig 
     (Some Pb_codegen_encode_bs.ocamldoc_title);
+  F.line mli_sc "end";
+  F.empty_line mli_sc;
+  F.line mli_sc "module Decode : sig";
   generate_for_all_types ocaml_types mli_sc 
     Pb_codegen_decode_bs.gen_sig 
     (Some Pb_codegen_decode_bs.ocamldoc_title);
+  F.line mli_sc "end";
   
   let sig_oc, struct_oc = open_files cmdline file_suffix in 
   output_string struct_oc (F.print ml_sc);

@@ -21,10 +21,9 @@ let value_expression ~r_name ~rf_label field_type =
   | Ot.Ft_user_defined_type udt -> 
     let {Ot.udt_type; _} = udt in 
     let f_name = 
-      let function_prefix = "decode" in 
-      let module_suffix = "bs" in 
-      Pb_codegen_util.function_name_of_user_defined 
-        ~function_prefix ~module_suffix udt 
+      let module_suffix = "Decode" in
+      Pb_codegen_util.bs_function_name_of_user_defined
+        ~module_suffix udt
     in 
     begin match udt_type with
     | `Message
@@ -103,7 +102,7 @@ let gen_rft_variant sc ~r_name ~rf_label {Ot.v_constructors; _} =
 let gen_record ?and_  module_prefix {Ot.r_name; r_fields} sc = 
   let mutable_record_name = Pb_codegen_util.mutable_record_name r_name in 
 
-  F.linep sc "%s decode_%s json =" 
+  F.linep sc "%s %s json ="
     (Pb_codegen_util.let_decl_of_and and_) r_name; 
 
   F.scope sc (fun sc -> 
@@ -183,7 +182,7 @@ let gen_variant ?and_ module_prefix {Ot.v_name; v_constructors} sc =
           vc_constructor value_expression module_prefix v_name
   in
 
-  F.linep sc "%s decode_%s json =" 
+  F.linep sc "%s %s json ="
     (Pb_codegen_util.let_decl_of_and and_) v_name; 
 
   F.scope sc (fun sc -> 
@@ -213,7 +212,7 @@ let gen_variant ?and_ module_prefix {Ot.v_name; v_constructors} sc =
   ) 
 
 let gen_const_variant ?and_ module_prefix {Ot.cv_name; cv_constructors} sc = 
-  F.linep sc "%s decode_%s (json:Js.Json.t) =" 
+  F.linep sc "%s %s (json:Js.Json.t) ="
     (Pb_codegen_util.let_decl_of_and and_) cv_name; 
 
   F.scope sc (fun sc -> 
@@ -248,9 +247,9 @@ let gen_sig ?and_ t sc =
   let {Ot.module_prefix; spec; _} = t in 
 
   let f type_name = 
-    F.linep sc "val decode_%s : Js.Json.t -> %s_types.%s"
+    F.linep sc "val %s : Js.Json.t -> %s_types.%s"
                  type_name module_prefix type_name ; 
-    F.linep sc ("(** [decode_%s decoder] decodes a " ^^ 
+    F.linep sc ("(** [%s decoder] decodes a " ^^
                      "[%s] value from [decoder] *)") type_name type_name; 
   in 
 
@@ -258,9 +257,9 @@ let gen_sig ?and_ t sc =
   | Ot.Record {Ot.r_name; _ } -> f r_name; true
   | Ot.Variant {Ot.v_name; _ } -> f v_name; true 
   | Ot.Const_variant {Ot.cv_name; _ } -> 
-    F.linep sc "val decode_%s : Js.Json.t -> %s_types.%s" 
+    F.linep sc "val %s : Js.Json.t -> %s_types.%s"
       cv_name module_prefix cv_name ; 
-    F.linep sc "(** [decode_%s value] decodes a [%s] from a Json value*)"
+    F.linep sc "(** [%s value] decodes a [%s] from a Json value*)"
       cv_name cv_name;
     true
 

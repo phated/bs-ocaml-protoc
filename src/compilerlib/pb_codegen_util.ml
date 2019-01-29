@@ -77,6 +77,12 @@ let function_name_of_user_defined ~function_prefix ~module_suffix = function
   | {Ot.udt_module_prefix = None; Ot.udt_type_name; _} ->
     sp "%s_%s" function_prefix udt_type_name
 
+let bs_function_name_of_user_defined ~module_suffix = function
+  | {Ot.udt_module_prefix = Some module_prefix; Ot.udt_type_name; _} ->
+    sp "%s.%s.%s" module_prefix module_suffix udt_type_name
+  | {Ot.udt_module_prefix = None; Ot.udt_type_name; _} ->
+    udt_type_name
+
 let caml_file_name_of_proto_file_name ~proto_file_name ~file_suffix =
   let splitted = Pb_util.rev_split_by_char '.' proto_file_name in
   if List.length splitted < 2 ||

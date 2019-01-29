@@ -33,6 +33,11 @@ val function_name_of_user_defined :
     user defined field type.
  *)
 
+val bs_function_name_of_user_defined :
+  module_suffix:string ->
+  Pb_codegen_ocaml_type.user_defined_type ->
+  string
+
 val caml_file_name_of_proto_file_name :
   proto_file_name:string ->
   file_suffix:string ->
