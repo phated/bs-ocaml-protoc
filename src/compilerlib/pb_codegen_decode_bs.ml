@@ -27,9 +27,7 @@ let value_expression ~r_name ~rf_label field_type =
         ~function_prefix ~module_suffix udt 
     in 
     begin match udt_type with
-    | `Message -> 
-      let o = sp "(Pbrt_bs.object_ json \"%s\" \"%s\")" r_name rf_label  in 
-      "(" ^ f_name ^ " " ^ o ^ ")"
+    | `Message
     | `Enum ->
       "(" ^ f_name ^ " json)"
     end
@@ -109,6 +107,7 @@ let gen_record ?and_  module_prefix {Ot.r_name; r_fields} sc =
     (Pb_codegen_util.let_decl_of_and and_) r_name; 
 
   F.scope sc (fun sc -> 
+    F.linep sc "let json = Pbrt_bs.object_ json \"%s\" \"*\" in" r_name;
     F.linep sc "let v = default_%s () in" mutable_record_name;
     F.line sc "let keys = Js.Dict.keys json in"; 
     F.line sc "let last_key_index = Array.length keys - 1 in"; 
@@ -188,6 +187,7 @@ let gen_variant ?and_ module_prefix {Ot.v_name; v_constructors} sc =
     (Pb_codegen_util.let_decl_of_and and_) v_name; 
 
   F.scope sc (fun sc -> 
+    F.linep sc "let json = Pbrt_bs.object_ json \"%s\" \"*\" in" v_name;
     F.line sc "let keys = Js.Dict.keys json in"; 
     
     (* even though a variant should be an object with a single field, 
@@ -248,7 +248,7 @@ let gen_sig ?and_ t sc =
   let {Ot.module_prefix; spec; _} = t in 
 
   let f type_name = 
-    F.linep sc "val decode_%s : Js.Json.t Js.Dict.t -> %s_types.%s" 
+    F.linep sc "val decode_%s : Js.Json.t -> %s_types.%s"
                  type_name module_prefix type_name ; 
     F.linep sc ("(** [decode_%s decoder] decodes a " ^^ 
                      "[%s] value from [decoder] *)") type_name type_name; 
