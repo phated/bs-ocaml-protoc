@@ -79,7 +79,7 @@ let gen_field sc var_name json_label field_type pk =
       F.linep sc "begin (* %s field *)" json_label;
       F.scope sc (fun sc -> 
         F.linep sc "let json' = %s %s in" f_name var_name;
-        F.linep sc "Js.Dict.set json \"%s\" (Js.Json.object_ json');" 
+        F.linep sc "Js.Dict.set json \"%s\" json';" 
           json_label;
       ); 
       F.line sc "end;"
@@ -147,7 +147,7 @@ let gen_rft_repeated sc var_name rf_label repeated_field =
       in 
 
       F.linep sc "%s v json';" f_name;
-      F.linep sc "Js.Dict.set json \"%s\" (Js.Json.object_ json');" 
+      F.linep sc "Js.Dict.set json \"%s\" json';" 
         json_label;
       F.line sc "json' |> Array.of_list";
     ); 
@@ -209,7 +209,7 @@ let gen_record ?and_ module_prefix {Ot.r_name; r_fields } sc =
         exit 1
         
     ) r_fields (* List.iter *); 
-    F.line sc "json"
+    F.line sc "json |> Js.Json.object_"
   )
 
 let gen_variant ?and_ module_prefix {Ot.v_name; v_constructors} sc = 
@@ -241,7 +241,7 @@ let gen_variant ?and_ module_prefix {Ot.v_name; v_constructors} sc =
     F.line sc "begin match v with";
     List.iter (process_v_constructor sc) v_constructors;
     F.line sc "end;";
-    F.line sc "json";
+    F.line sc "json |> Js.Json.object_";
   ) 
 
 let gen_const_variant ?and_ module_prefix {Ot.cv_name; Ot.cv_constructors} sc = 
@@ -269,7 +269,7 @@ let gen_sig ?and_ t sc =
   let _ = and_ in
   let {Ot.module_prefix; spec; _} = t in 
   let f type_name = 
-    F.linep sc "val encode_%s : %s_types.%s -> Js.Json.t Js.Dict.t" 
+    F.linep sc "val encode_%s : %s_types.%s -> Js.Json.t" 
       type_name module_prefix type_name;
     F.linep sc ("(** [encode_%s v dict] encodes [v] int the " ^^ 
                      "given JSON [dict] *)") type_name; 
