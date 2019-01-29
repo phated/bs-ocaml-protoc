@@ -127,16 +127,18 @@ let constructor_name s =
   |> List.rev
   |> String.concat "_"
   |> String.lowercase
+  |> Pb_codegen_util.camel_case_of_label
   |> String.capitalize [@@ocaml.warning "-3"]
 
-let module_name = constructor_name
+let module_name = String.capitalize
 
 let label_name_of_field_name s =
   rev_split_by_naming_convention s
   |> List.rev
   |> String.concat "_"
   |> String.lowercase
-  |> fix_ocaml_keyword_conflict [@@ocaml.warning "-3"]
+  |> Pb_codegen_util.camel_case_of_label
+  |> fix_ocaml_keyword_conflict
 
 let module_prefix_of_file_name file_name =
   let file_name = Filename.basename file_name in
@@ -155,10 +157,11 @@ let type_name message_scope name =
   ) all_names [@ocaml.warning "-3"]  in
   let all_names = List.flatten all_names in
 
-  match all_names with
-  | []     -> failwith "Programmatic error"
-  | hd::[] -> fix_ocaml_keyword_conflict hd
-  | _      -> S.concat "_" all_names
+  (match all_names with
+   | []     -> failwith "Programmatic error"
+   | _      -> S.concat "_" all_names)
+  |> Pb_codegen_util.camel_case_of_label
+  |> fix_ocaml_keyword_conflict
 
 let wrapper_type_of_type_name = function
   | "FloatValue" -> Ot.({wt_type = Bt_float; wt_pk = Pk_bits32})
