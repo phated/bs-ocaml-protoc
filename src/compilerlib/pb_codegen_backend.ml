@@ -468,7 +468,7 @@ let compile_message
               | _ -> false
               end
             in
-            if is_message
+            if is_message && false (* FIXME *)
             then Ot.Rft_optional (ocaml_field_type, encoding_number, pk, None)
             else Ot.Rft_nolabel (ocaml_field_type, encoding_number, pk)
 
