@@ -11,9 +11,9 @@ dev-repo:"https://github.com/mransan/ocaml-protoc.git"
 license: "MIT"
 build: [
   [make "lib.byte"]   
-  [make "lib.native"] { ocaml-native }
-  [make "bin.byte"]   {!ocaml-native }
-  [make "bin.native"] { ocaml-native }
+  [make "lib.native"]
+  [make "bin.byte"]
+  [make "bin.native"]
 ]
 install: [
   [make "lib.install" ]
